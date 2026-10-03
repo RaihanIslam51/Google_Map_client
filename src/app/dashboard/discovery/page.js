@@ -325,17 +325,20 @@ export default function DiscoveryPage() {
   const handleExportCSV = () => {
     try {
       if (!Array.isArray(leads) || leads.length === 0) return;
-      const headers = ['Business Name', 'Category', 'Phone', 'Address', 'Rating', 'Website'];
+      const headers = ['Business Name', 'Category', 'Email', 'Phone', 'WhatsApp', 'Address', 'Rating', 'Website', 'Maps URL'];
       const csvRows = [
         headers.join(','),
         ...leads.map((l) =>
           [
             `"${String(l?.title || l?.name || '').replace(/"/g, '""')}"`,
             `"${String(l?.category || '').replace(/"/g, '""')}"`,
+            `"${String(l?.email || '').replace(/"/g, '""')}"`,
             `"${String(l?.phone || '').replace(/"/g, '""')}"`,
+            `"${String(l?.whatsapp || '').replace(/"/g, '""')}"`,
             `"${String(l?.address || '').replace(/"/g, '""')}"`,
             `"${String(l?.rating || l?.totalScore || '').replace(/"/g, '""')}"`,
             `"${String(l?.website || '').replace(/"/g, '""')}"`,
+            `"${String(l?.mapsUrl || '').replace(/"/g, '""')}"`,
           ].join(',')
         ),
       ];
@@ -359,7 +362,7 @@ export default function DiscoveryPage() {
   };
 
   return (
-    <div className="space-y-3.5 sm:space-y-5 max-w-7xl mx-auto px-1.5 sm:px-4 py-1 sm:py-2 text-slate-800">
+    <div className="space-y-3.5 sm:space-y-5 container mx-auto  py-1 sm:py-2 text-slate-800">
       {/* 1. Search Bar */}
       <DiscoverySearchBar
         searchContainerRef={searchContainerRef}

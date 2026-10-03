@@ -1,13 +1,10 @@
 // lib/api/search-jobs.js
+import axios from 'axios';
 import API from '../api';
 
-const MOCK_JOBS = [
-  { _id: 'j1', keyword: 'restaurant in Dinajpur', location: 'Dinajpur', status: 'completed', maxResults: 100, collected: 94, createdAt: new Date(Date.now() - 2 * 3600000).toISOString() },
-  { _id: 'j2', keyword: 'hotel in Dinajpur', location: 'Dinajpur', status: 'completed', maxResults: 100, collected: 65, createdAt: new Date(Date.now() - 4 * 3600000).toISOString() },
-  { _id: 'j3', keyword: 'hospital in Dinajpur', location: 'Dinajpur', status: 'running', maxResults: 100, collected: 41, createdAt: new Date(Date.now() - 1 * 3600000).toISOString() },
-  { _id: 'j4', keyword: 'school in Dinajpur', location: 'Dinajpur', status: 'pending', maxResults: 100, collected: 0, createdAt: new Date(Date.now() - 30 * 60000).toISOString() },
-  { _id: 'j5', keyword: 'pharmacy in Dinajpur', location: 'Dinajpur', status: 'failed', maxResults: 100, collected: 12, createdAt: new Date(Date.now() - 6 * 3600000).toISOString() },
-];
+const LOCAL_ENGINE_URL = 'http://localhost:5000/api';
+
+const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
 export const searchJobsApi = {
   async getAll({ page = 1, limit = 20, status = '', search = '' } = {}) {
@@ -18,10 +15,7 @@ export const searchJobsApi = {
       const { data } = await API.get(`/search-jobs?${params}`);
       return data;
     } catch {
-      let items = MOCK_JOBS;
-      if (status) items = items.filter(j => j.status === status);
-      if (search) items = items.filter(j => j.keyword.toLowerCase().includes(search.toLowerCase()));
-      return { success: true, data: items, total: items.length, page: 1, pages: 1, _mock: true };
+      return { success: true, data: [], total: 0, page: 1, pages: 1 };
     }
   },
 
@@ -30,22 +24,48 @@ export const searchJobsApi = {
       const { data } = await API.get(`/search-jobs/${id}`);
       return data;
     } catch {
-      return { success: true, data: MOCK_JOBS.find(j => j._id === id) || null, _mock: true };
+      return { success: true, data: null };
     }
   },
 
   async create(payload) {
     try {
+      // 1. Try sending to Local PC Engine only when running on local desktop browser
+      if (isLocalhost) {
+        try {
+          const localRes = await axios.post(`${LOCAL_ENGINE_URL}/search-jobs`, payload, {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 1000 * 60 * 60, // 1 hour timeout for extraction
+          });
+          if (localRes?.data) return localRes.data;
+        } catch (localErr) {
+          // If local engine returned a 4xx response from server logic (e.g. validation), throw it
+          if (localErr.response && localErr.response.status < 500) {
+            throw new Error(localErr.response.data?.message || 'Scrape job failed');
+          }
+        }
+      }
+
+      // 2. Fallback to default API instance
       const { data } = await API.post('/search-jobs', payload);
       return data;
     } catch (err) {
       if (err.response) throw new Error(err.response.data?.message || 'Failed to create job');
-      return { success: true, data: { _id: `j${Date.now()}`, ...payload, status: 'pending', collected: 0, createdAt: new Date().toISOString() }, _mock: true };
+      throw err;
     }
   },
 
   async getLiveStatus() {
     try {
+      if (isLocalhost) {
+        try {
+          const localRes = await axios.get(`${LOCAL_ENGINE_URL}/search-jobs/live-status`, { timeout: 1500 });
+          if (localRes?.data?.data && localRes.data.data.status !== 'idle') {
+            return localRes.data;
+          }
+        } catch (e) {}
+      }
+
       const { data } = await API.get('/search-jobs/live-status');
       return data || { success: false, data: null };
     } catch {
@@ -55,6 +75,15 @@ export const searchJobsApi = {
 
   async getLiveLogs() {
     try {
+      if (isLocalhost) {
+        try {
+          const localRes = await axios.get(`${LOCAL_ENGINE_URL}/search-jobs/logs`, { timeout: 1500 });
+          if (localRes?.data?.logs && Array.isArray(localRes.data.logs) && localRes.data.logs.length > 0) {
+            return localRes.data;
+          }
+        } catch (e) {}
+      }
+
       const { data } = await API.get('/search-jobs/logs');
       return data || { success: false, logs: [] };
     } catch {
@@ -64,6 +93,11 @@ export const searchJobsApi = {
 
   async stop() {
     try {
+      if (isLocalhost) {
+        try {
+          await axios.post(`${LOCAL_ENGINE_URL}/search-jobs/stop`, {}, { timeout: 2000 });
+        } catch (e) {}
+      }
       const { data } = await API.post('/search-jobs/stop');
       return data;
     } catch (err) {
@@ -77,7 +111,7 @@ export const searchJobsApi = {
       const { data } = await API.delete(`/search-jobs/${id}`);
       return data;
     } catch {
-      return { success: true, _mock: true };
+      return { success: true };
     }
   },
 };

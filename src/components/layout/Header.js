@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { Bell, Search, User, ChevronRight, X, Plus, Menu, RotateCcw } from 'lucide-react';
+import { Bell, ChevronRight, X, Plus, Menu, RotateCcw, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -42,7 +42,7 @@ const MOCK_NOTIFICATIONS = [
   { id: 3, title: 'Scraping failed', description: 'Pharmacy Dinajpur encountered an error', time: '1h ago', read: true },
 ];
 
-export default function Header({ onToggleMobileMenu = () => {} }) {
+export default function Header({ onToggleMobileMenu = () => {}, onToggleSidebar = () => {}, sidebarCollapsed = false }) {
   const [isReloading, setIsReloading] = React.useState(false);
   const pathname = usePathname();
   const [notifOpen, setNotifOpen] = useState(false);
@@ -57,14 +57,30 @@ export default function Header({ onToggleMobileMenu = () => {} }) {
 
   return (
     <header className="h-14 bg-white border-b border-slate-200/80 flex items-center px-4 sm:px-6 gap-3 sticky top-0 z-30">
-      {/* Left — Hamburger + Title / Breadcrumb */}
-      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+      {/* Left — Hamburger + Sidebar Toggle + Title / Breadcrumb */}
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        {/* Mobile hamburger */}
         <button
           onClick={onToggleMobileMenu}
           className="lg:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors shrink-0"
           aria-label="Open navigation menu"
         >
           <Menu className="w-5 h-5" />
+        </button>
+
+        {/* Desktop sidebar collapse/expand toggle */}
+        <button
+          id="sidebar-toggle-btn"
+          onClick={onToggleSidebar}
+          title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="hidden lg:flex items-center justify-center w-8 h-8 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-all duration-200 shrink-0 group"
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {sidebarCollapsed ? (
+            <PanelLeftOpen className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+          ) : (
+            <PanelLeftClose className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+          )}
         </button>
 
         <div className="flex-1 min-w-0">

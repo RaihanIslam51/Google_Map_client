@@ -43,7 +43,7 @@ export default function LightDashboardPage() {
   const maxScrapedValue = Math.max(10, ...activityData.map(a => Number(a.scraped || 0)));
 
   return (
-    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto py-1 sm:py-2 text-slate-800">
+    <div className="space-y-4 sm:space-y-6 container mx-auto py-1 sm:py-2 text-slate-800">
       {/* ─── Top 4 Metric Cards Row ───────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-5">
         {/* Card 1: TOTAL LEADS */}

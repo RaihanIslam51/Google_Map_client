@@ -10,10 +10,22 @@ export default function DashboardLayout({ children }) {
   const { loading, token } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Persist collapse state across page navigations
+    const saved = localStorage.getItem('sidebar-collapsed');
+    if (saved !== null) setSidebarCollapsed(saved === 'true');
   }, []);
+
+  const handleToggleSidebar = () => {
+    setSidebarCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('sidebar-collapsed', String(next));
+      return next;
+    });
+  };
 
   if (!mounted || loading) {
     return (
@@ -35,9 +47,17 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] text-slate-800" suppressHydrationWarning>
-      <Sidebar mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+      <Sidebar
+        mobileOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        collapsed={sidebarCollapsed}
+      />
       <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC]" suppressHydrationWarning>
-        <Header onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
+        <Header
+          onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onToggleSidebar={handleToggleSidebar}
+          sidebarCollapsed={sidebarCollapsed}
+        />
         <main className="flex-1 p-3 sm:p-5 lg:p-8 overflow-y-auto bg-[#F8FAFC]" suppressHydrationWarning>
           {children}
         </main>

@@ -1,9 +1,39 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Sparkles, Download, CheckCircle2, Loader2, Building2,
-  Phone, Star, ExternalLink, MapPin, Target, Globe
+  Phone, Star, ExternalLink, MapPin, Target, Globe, Mail, Copy, Check
 } from 'lucide-react';
+
+// ── Copy-to-clipboard mini hook ──────────────────────────────
+function CopyEmailButton({ email }) {
+  const [copied, setCopied] = useState(false);
+  if (!email) return null;
+  const handleCopy = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title={copied ? 'Copied!' : 'Copy email'}
+      className={`ml-1 p-0.5 rounded transition-all cursor-pointer shrink-0 ${
+        copied
+          ? 'text-emerald-500'
+          : 'text-violet-400 hover:text-violet-600'
+      }`}
+    >
+      {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+    </button>
+  );
+}
 
 function getWhatsAppUrl(phone = '') {
   if (!phone || typeof phone !== 'string' || phone === 'N/A') return null;
@@ -82,6 +112,7 @@ export default function ExtractedLeadsTable({
               const itemAddress = String(b.address || 'N/A');
               const itemScore = b.totalScore || b.rating || '';
               const itemWebsite = String(b.website || '');
+              const itemEmail = String(b.email || '');
               const itemId = b._id || `lead_${idx}`;
               const waUrl = getWhatsAppUrl(itemPhone);
               const isTarget = targetAddedSet.has(itemId);
@@ -92,17 +123,11 @@ export default function ExtractedLeadsTable({
                   {/* Top Bar: Title & Category + Actions */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-slate-900 text-[13px] line-clamp-1">{itemTitle}</h3>
+                      <h3 className="font-extrabold text-slate-900 text-[13.5px] leading-snug break-words">{itemTitle}</h3>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         {itemCategory && (
                           <span className="text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-100 px-1.5 py-0.5 rounded-md font-semibold">
                             {itemCategory}
-                          </span>
-                        )}
-                        {itemScore && (
-                          <span className="inline-flex items-center gap-0.5 bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-0.5 rounded-md text-[10px] font-bold">
-                            <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-                            {itemScore}
                           </span>
                         )}
                       </div>
@@ -140,6 +165,28 @@ export default function ExtractedLeadsTable({
                       <span className="leading-relaxed whitespace-pre-wrap break-words">{itemAddress}</span>
                     </div>
                   )}
+
+                  {/* Email */}
+                  <div className="flex items-center justify-between text-xs pt-0.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email:</span>
+                    {itemEmail ? (
+                      <div className="inline-flex items-center gap-1 bg-violet-50 border border-violet-100 px-2 py-1 rounded-lg max-w-[200px] overflow-hidden">
+                        <Mail className="w-3 h-3 text-violet-400 shrink-0" />
+                        <a
+                          href={`mailto:${itemEmail}`}
+                          className="text-violet-700 hover:underline text-[11px] font-semibold truncate"
+                          title={itemEmail}
+                        >
+                          {itemEmail}
+                        </a>
+                        <CopyEmailButton email={itemEmail} />
+                      </div>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-slate-300 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-md font-medium">
+                        <Mail className="w-3 h-3" /> No email
+                      </span>
+                    )}
+                  </div>
 
                   {/* MAIN FOCUS 2: Website */}
                   <div className="flex items-center justify-between text-xs pt-0.5">
@@ -203,11 +250,11 @@ export default function ExtractedLeadsTable({
               <thead>
                 <tr className="border-b border-slate-100 text-[10px] font-bold uppercase tracking-widest bg-slate-50/80">
                   <th className="px-5 py-3.5 text-slate-400">Business</th>
+                  <th className="px-4 py-3.5 text-violet-600">📧 Business Email</th>
                   <th className="px-5 py-3.5 text-emerald-600">📞 Phone</th>
                   <th className="px-5 py-3.5 text-[#25D366]">💬 WhatsApp</th>
                   <th className="px-5 py-3.5 text-slate-400">📍 Address</th>
                   <th className="px-5 py-3.5 text-sky-600">🌐 Website</th>
-                  <th className="px-5 py-3.5 text-center text-slate-400">Rating</th>
                   <th className="px-5 py-3.5 text-right w-24"></th>
                 </tr>
               </thead>
@@ -220,6 +267,7 @@ export default function ExtractedLeadsTable({
                   const itemAddress = String(b.address || 'N/A');
                   const itemScore = b.totalScore || b.rating || '';
                   const itemWebsite = String(b.website || '');
+                  const itemEmail = String(b.email || '');
                   const itemId = b._id || `lead_${idx}`;
                   const waUrl = getWhatsAppUrl(itemPhone);
                   const isTarget = targetAddedSet.has(itemId);
@@ -227,11 +275,32 @@ export default function ExtractedLeadsTable({
                   return (
                     <tr key={`${itemId}_tr_${idx}`} className="hover:bg-slate-50/80 transition-colors animate-in fade-in">
                       {/* Business */}
-                      <td className="px-5 py-4 max-w-[200px]">
-                        <p className="font-semibold text-slate-900 line-clamp-1 text-[12.5px]">{itemTitle}</p>
+                      <td className="px-5 py-4 min-w-[240px]">
+                        <p className="font-extrabold text-slate-900 text-[13.5px] leading-snug break-words whitespace-normal">{itemTitle}</p>
                         {itemCategory && (
-                          <span className="inline-block mt-0.5 text-[10px] bg-indigo-50 text-indigo-500 border border-indigo-100 px-1.5 py-0.5 rounded-md font-semibold">
+                          <span className="inline-block mt-0.5 text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-100 px-1.5 py-0.5 rounded-md font-bold">
                             {itemCategory}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Email — MAIN FOCUS */}
+                      <td className="px-4 py-4 max-w-[200px]">
+                        {itemEmail ? (
+                          <div className="inline-flex items-center gap-1.5 bg-violet-50 border border-violet-200 text-violet-800 px-2.5 py-1.5 rounded-xl font-semibold text-[11px] shadow-xs max-w-full">
+                            <Mail className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+                            <a
+                              href={`mailto:${itemEmail}`}
+                              className="hover:underline truncate block max-w-[140px]"
+                              title={itemEmail}
+                            >
+                              {itemEmail}
+                            </a>
+                            <CopyEmailButton email={itemEmail} />
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-300 bg-slate-50 border border-slate-100 px-2.5 py-1.5 rounded-xl">
+                            <Mail className="w-3 h-3" /> No email
                           </span>
                         )}
                       </td>
@@ -299,18 +368,6 @@ export default function ExtractedLeadsTable({
                           <span className="inline-flex items-center gap-1.5 text-[11px] text-rose-400 bg-rose-50 border border-rose-100 px-2 py-1 rounded-lg font-medium">
                             <Globe className="w-3 h-3" /> No site
                           </span>
-                        )}
-                      </td>
-
-                      {/* Rating */}
-                      <td className="px-5 py-4 text-center">
-                        {itemScore ? (
-                          <span className="inline-flex items-center gap-1 bg-amber-50 border border-amber-100 text-amber-700 text-[11px] font-bold px-2 py-1 rounded-lg">
-                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                            {itemScore}
-                          </span>
-                        ) : (
-                          <span className="text-slate-300 text-[11px]">—</span>
                         )}
                       </td>
 

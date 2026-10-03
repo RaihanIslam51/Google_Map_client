@@ -48,7 +48,7 @@ export default function HomePage() {
       
       {/* ─── Navigation Header ───────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 shadow-2xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+        <div className="mcontainer mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-tr from-[#6D28D9] to-[#4F46E5] rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/20 shrink-0">
               <Map className="w-4.5 h-4.5 text-white" />
