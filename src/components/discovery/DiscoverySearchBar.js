@@ -28,22 +28,31 @@ export default function DiscoverySearchBar({
     );
   });
 
+  const selectWrap =
+    'flex items-center gap-2 h-10 bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-3 transition-colors';
+  const selectCls =
+    'appearance-none bg-transparent text-slate-800 text-[13px] font-semibold focus:outline-none cursor-pointer pr-4 disabled:opacity-60 disabled:cursor-not-allowed';
+
   return (
-    <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-visible">
-
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-visible">
       {/* ── Main Search Row ───────────────────────────────── */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-0 md:gap-0 p-1.5 sm:p-2">
-
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 p-3">
         {/* Search Input */}
         <div ref={searchContainerRef} className="flex-1 relative">
-          <div className={`flex items-center gap-2.5 px-3 sm:px-4 py-2.5 rounded-xl transition-all ${isScraping ? 'bg-indigo-50/60' : 'bg-slate-50/60 hover:bg-slate-100/60'} md:bg-transparent md:hover:bg-transparent`}>
+          <div
+            className={`flex items-center gap-2.5 h-10 px-3.5 rounded-lg border transition-colors ${
+              isScraping
+                ? 'bg-indigo-50/60 border-indigo-200'
+                : 'bg-slate-50 border-slate-200 focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-4 focus-within:ring-indigo-500/10'
+            }`}
+          >
             {isScraping ? (
-              <div className="flex items-center justify-center w-5 h-5 shrink-0">
-                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping absolute" />
-                <span className="w-2 h-2 rounded-full bg-indigo-600 relative" />
-              </div>
+              <span className="relative flex w-2 h-2 shrink-0">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75 animate-ping" />
+                <span className="relative inline-flex w-2 h-2 rounded-full bg-indigo-600" />
+              </span>
             ) : (
-              <Search className="w-4 h-4 text-violet-500 shrink-0" />
+              <Search className="w-4 h-4 text-slate-400 shrink-0" />
             )}
             <input
               type="text"
@@ -60,14 +69,15 @@ export default function DiscoverySearchBar({
                 }
               }}
               placeholder='Search e.g., "Software Companies" or "Hotels in Dhaka"'
-              className="w-full bg-transparent text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none"
+              className="w-full bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
               readOnly={isScraping}
             />
             {searchQuery && !isScraping && (
               <button
                 type="button"
                 onClick={() => { setSearchQuery(''); setShowSuggestions(false); }}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/60 transition-colors cursor-pointer shrink-0"
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-200/60 transition-colors cursor-pointer shrink-0"
+                aria-label="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -76,60 +86,61 @@ export default function DiscoverySearchBar({
 
           {/* Autocomplete dropdown */}
           {showSuggestions && !isScraping && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 overflow-hidden max-h-72 overflow-y-auto divide-y divide-slate-50">
-              <div className="px-3.5 py-2 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  {filteredSuggestions.length} Category Suggestions
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl shadow-slate-900/10 z-50 overflow-hidden max-h-72 overflow-y-auto">
+              <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between sticky top-0">
+                <span className="text-[11px] font-semibold text-slate-500">
+                  {filteredSuggestions.length} category suggestions
                 </span>
-                <span className="text-[9px] text-violet-600 font-semibold">Click to select</span>
+                <span className="text-[11px] text-slate-400">Click to select</span>
               </div>
 
-              {filteredSuggestions.map((item) => (
-                <button
-                  key={item.query}
-                  type="button"
-                  onClick={() => { setSearchQuery(item.query); setShowSuggestions(false); }}
-                  className="w-full text-left px-4 py-2.5 hover:bg-violet-50/60 transition-colors flex items-center justify-between group cursor-pointer"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                    <span className="text-base leading-none shrink-0">{item.icon}</span>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-800 group-hover:text-violet-700 transition-colors truncate">{item.label}</p>
-                      <p className="text-[10px] text-slate-400 font-medium truncate">
-                        &quot;<span className="font-semibold text-slate-600">{item.query}</span>&quot;
-                      </p>
+              <div className="divide-y divide-slate-50">
+                {filteredSuggestions.map((item) => (
+                  <button
+                    key={item.query}
+                    type="button"
+                    onClick={() => { setSearchQuery(item.query); setShowSuggestions(false); }}
+                    className="w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3 group cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="w-8 h-8 rounded-lg bg-slate-50 group-hover:bg-white border border-slate-100 flex items-center justify-center text-base leading-none shrink-0">
+                        {item.icon}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-semibold text-slate-800 group-hover:text-indigo-700 transition-colors truncate">{item.label}</p>
+                        <p className="text-[11px] text-slate-400 truncate">
+                          &quot;<span className="text-slate-500">{item.query}</span>&quot;
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-[10px] bg-slate-100 group-hover:bg-violet-100 text-slate-600 group-hover:text-violet-700 font-bold px-2 py-0.5 rounded-md transition-colors shrink-0">
-                    {item.category}
-                  </span>
-                </button>
-              ))}
+                    <span className="text-[11px] bg-slate-100 group-hover:bg-indigo-50 text-slate-500 group-hover:text-indigo-700 font-medium px-2 py-0.5 rounded-md transition-colors shrink-0">
+                      {item.category}
+                    </span>
+                  </button>
+                ))}
+              </div>
 
               {filteredSuggestions.length === 0 && (
-                <div className="p-4 text-center text-xs text-slate-400">
-                  Press <kbd className="bg-slate-100 px-1.5 py-0.5 rounded font-mono text-[10px] border border-slate-200">Enter</kbd> to search for &quot;<span className="font-bold text-slate-700">{searchQuery}</span>&quot;
+                <div className="p-5 text-center text-xs text-slate-400">
+                  Press <kbd className="bg-slate-100 px-1.5 py-0.5 rounded font-mono text-[10px] border border-slate-200">Enter</kbd> to search for &quot;<span className="font-semibold text-slate-700">{searchQuery}</span>&quot;
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Divider */}
-        <div className="hidden md:block h-8 border-r border-slate-200/80 mx-1" />
-
         {/* Options: Limit + Tabs */}
-        <div className="flex items-center gap-1.5 sm:gap-2 border-t md:border-none border-slate-100 pt-1.5 md:pt-0 px-2 md:px-1">
-
+        <div className="flex items-center gap-2">
           {/* Limit Select */}
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1.5">
-            <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest hidden sm:block">Limit</span>
+          <div className={selectWrap}>
+            <span className="text-[11px] font-medium text-slate-400 hidden sm:block">Limit</span>
             <div className="relative flex items-center">
               <select
                 value={limit}
                 onChange={(e) => setLimit(Number(e.target.value))}
                 disabled={isScraping}
-                className="appearance-none bg-transparent text-slate-800 text-xs font-bold focus:outline-none cursor-pointer pr-4 disabled:opacity-60"
+                className={selectCls}
+                aria-label="Lead limit"
               >
                 <option value={20}>20</option>
                 <option value={50}>50</option>
@@ -142,18 +153,19 @@ export default function DiscoverySearchBar({
               </select>
               <ChevronDown className="absolute right-0 w-3 h-3 text-slate-400 pointer-events-none" />
             </div>
-            <span className="text-[9px] text-slate-500 font-medium hidden sm:block">leads</span>
+            <span className="text-[11px] text-slate-400 hidden sm:block">leads</span>
           </div>
 
           {/* Tabs Select */}
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1.5">
-            <Zap className="w-3 h-3 text-amber-500 shrink-0" />
+          <div className={selectWrap}>
+            <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
             <div className="relative flex items-center">
               <select
                 value={tabsCount}
                 onChange={(e) => setTabsCount(Number(e.target.value))}
                 disabled={isScraping}
-                className="appearance-none bg-transparent text-slate-800 text-xs font-bold focus:outline-none cursor-pointer pr-4 disabled:opacity-60"
+                className={selectCls}
+                aria-label="Parallel tabs"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -163,27 +175,24 @@ export default function DiscoverySearchBar({
               </select>
               <ChevronDown className="absolute right-0 w-3 h-3 text-slate-400 pointer-events-none" />
             </div>
-            <span className="text-[9px] text-slate-500 font-medium hidden sm:block">tabs</span>
+            <span className="text-[11px] text-slate-400 hidden sm:block">tabs</span>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="hidden md:block h-8 border-r border-slate-200/80 mx-1" />
-
         {/* Action Button */}
-        <div className="pt-1.5 md:pt-0 px-1">
+        <div>
           {isScraping ? (
             <button
               type="button"
               onClick={onStop}
               disabled={stopPending}
-              className="w-full md:w-auto flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 active:scale-95 disabled:opacity-50 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-rose-200/60 transition-all cursor-pointer border border-rose-500/40"
+              className="w-full lg:w-auto flex items-center justify-center gap-2 h-10 bg-rose-600 hover:bg-rose-700 active:scale-[0.98] disabled:opacity-50 text-white font-semibold text-[13px] px-5 rounded-lg shadow-sm shadow-rose-600/20 transition-all cursor-pointer"
               title="Stop scraping immediately"
             >
               {stopPending ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /><span>Stopping…</span></>
               ) : (
-                <><Square className="w-3.5 h-3.5 fill-white" /><span>STOP</span></>
+                <><Square className="w-3.5 h-3.5 fill-white" /><span>Stop</span></>
               )}
             </button>
           ) : (
@@ -191,10 +200,10 @@ export default function DiscoverySearchBar({
               type="button"
               onClick={() => { setShowSuggestions(false); onExtract(); }}
               disabled={!searchQuery.trim()}
-              className="w-full md:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-lg shadow-violet-200/60 transition-all cursor-pointer border border-violet-500/30"
+              className="w-full lg:w-auto flex items-center justify-center gap-2 h-10 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-[13px] px-5 rounded-lg shadow-sm shadow-indigo-600/25 transition-all cursor-pointer"
             >
-              <Play className="w-3.5 h-3.5 fill-white text-white" />
-              <span>Extract Leads</span>
+              <Play className="w-3.5 h-3.5 fill-white" />
+              <span>Extract leads</span>
             </button>
           )}
         </div>
@@ -202,12 +211,15 @@ export default function DiscoverySearchBar({
 
       {/* ── Scraping status bar at bottom ─────────────────── */}
       {isScraping && (
-        <div className="border-t border-indigo-100 px-4 py-2 flex items-center gap-2 bg-indigo-50/50 rounded-b-2xl">
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping" />
-          <p className="text-[10px] font-semibold text-indigo-600 truncate flex-1">
-            Scraping Google Maps for &ldquo;{searchQuery}&rdquo; — do not close this tab
+        <div className="border-t border-indigo-100 px-4 py-2.5 flex items-center gap-2.5 bg-indigo-50/50 rounded-b-xl">
+          <span className="relative flex w-1.5 h-1.5 shrink-0">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75 animate-ping" />
+            <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-indigo-600" />
+          </span>
+          <p className="text-xs font-medium text-indigo-700 truncate flex-1">
+            Scraping Google Maps for &ldquo;{searchQuery}&rdquo; — please keep this tab open
           </p>
-          <span className="text-[10px] font-bold text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full shrink-0">LIVE</span>
+          <span className="text-[10px] font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full shrink-0 tracking-wide">LIVE</span>
         </div>
       )}
     </div>

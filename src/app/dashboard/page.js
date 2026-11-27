@@ -1,9 +1,10 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import {
   Database, Target, PhoneCall, Globe, Users,
-  BarChart3, Sparkles, Building2, ExternalLink
+  ArrowUpRight, Compass, Download
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -42,156 +43,185 @@ export default function LightDashboardPage() {
 
   const maxScrapedValue = Math.max(10, ...activityData.map(a => Number(a.scraped || 0)));
 
+  const metricCards = [
+    {
+      label: 'Total leads',
+      value: totalLeads,
+      hint: 'In your database',
+      icon: Database,
+      tone: 'bg-indigo-50 text-indigo-600',
+    },
+    {
+      label: 'Target leads',
+      value: targetCount,
+      hint: `${targetPercent}% of total`,
+      icon: Target,
+      tone: 'bg-violet-50 text-violet-600',
+    },
+    {
+      label: 'Phone ready',
+      value: hasPhoneCount,
+      hint: `${phonePercent}% coverage`,
+      icon: PhoneCall,
+      tone: 'bg-emerald-50 text-emerald-600',
+    },
+    {
+      label: 'No website',
+      value: noWebsiteCount,
+      hint: 'Web design opportunities',
+      icon: Globe,
+      tone: 'bg-amber-50 text-amber-600',
+    },
+  ];
+
+  const coverage = [
+    { label: 'Phone coverage', percent: phonePercent, count: hasPhoneCount, bar: 'bg-emerald-500' },
+    { label: 'Has website', percent: websitePercent, count: hasWebsiteCount, bar: 'bg-sky-500' },
+    { label: 'Targeted', percent: targetPercent, count: targetCount, bar: 'bg-violet-500' },
+  ];
+
+  const cardCls = 'bg-white border border-slate-200 rounded-xl';
+
   return (
-    <div className="space-y-4 sm:space-y-6 container mx-auto py-1 sm:py-2 text-slate-800">
-      {/* ─── Top 4 Metric Cards Row ───────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-5">
-        {/* Card 1: TOTAL LEADS */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL LEADS</p>
-            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{totalLeads.toLocaleString()}</p>
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium">All Real Scraped Database</p>
-          </div>
-          <div className="w-11 h-11 sm:w-13 sm:h-13 bg-[#4F46E5] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
-            <Database className="w-5 h-5 sm:w-6 sm:h-6" />
-          </div>
+    <div className="space-y-6 container mx-auto text-slate-800">
+      {/* ─── Page heading ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Overview</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            A live snapshot of your lead pipeline and scraping activity.
+          </p>
         </div>
 
-        {/* Card 2: TARGET LEADS */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">TARGET LEADS</p>
-            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{targetCount.toLocaleString()}</p>
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium">{targetPercent}% of total database</p>
-          </div>
-          <div className="w-11 h-11 sm:w-13 sm:h-13 bg-[#6366F1] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
-            <Target className="w-5 h-5 sm:w-6 sm:h-6" />
-          </div>
-        </div>
-
-        {/* Card 3: PHONE NUMBER READY */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">WHATSAPP / PHONE READY</p>
-            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{hasPhoneCount.toLocaleString()}</p>
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium">{phonePercent}% phone coverage</p>
-          </div>
-          <div className="w-11 h-11 sm:w-13 sm:h-13 bg-[#10B981] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
-            <PhoneCall className="w-5 h-5 sm:w-6 sm:h-6" />
-          </div>
-        </div>
-
-        {/* Card 4: NO WEBSITE PROSPECTS */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">NO WEBSITE PROSPECTS</p>
-            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{noWebsiteCount.toLocaleString()}</p>
-            <p className="text-[11px] sm:text-xs text-amber-600 font-bold">High Web Design Opportunities</p>
-          </div>
-          <div className="w-11 h-11 sm:w-13 sm:h-13 bg-[#F59E0B] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
-            <Globe className="w-5 h-5 sm:w-6 sm:h-6" />
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 mr-1">
+            <span className={`w-1.5 h-1.5 rounded-full ${isLoading ? 'bg-amber-400' : 'bg-emerald-500'}`} />
+            {isLoading ? 'Syncing…' : 'Live'}
+          </span>
+          <Link
+            href="/dashboard/businesses"
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-white border border-slate-200 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" /> View leads
+          </Link>
+          <Link
+            href="/dashboard/discovery"
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-[13px] font-semibold text-white shadow-sm shadow-indigo-600/20 transition-colors"
+          >
+            <Compass className="w-3.5 h-3.5" /> New extraction
+          </Link>
         </div>
       </div>
 
-      {/* ─── Pipeline Analytics Main Container ────────────────────────────── */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 bg-indigo-50 rounded-lg text-[#4F46E5]">
-              <BarChart3 className="w-4.5 h-4.5" />
+      {/* ─── Metric cards ─────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {metricCards.map(({ label, value, hint, icon: Icon, tone }) => (
+          <div key={label} className={`${cardCls} p-5 hover:border-slate-300 transition-colors`}>
+            <div className="flex items-center justify-between">
+              <p className="text-[13px] font-medium text-slate-500">{label}</p>
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${tone}`}>
+                <Icon className="w-4 h-4" />
+              </span>
             </div>
-            <h2 className="text-sm font-bold text-slate-900">Pipeline & Scraper Analytics</h2>
+            <p className="mt-3 text-3xl font-bold text-slate-900 tracking-tight tabular-nums">
+              {value.toLocaleString()}
+            </p>
+            <p className="mt-1 text-xs text-slate-400">{hint}</p>
           </div>
-          <span className="text-[11px] sm:text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Live MongoDB Database Metrics
-          </span>
-        </div>
+        ))}
+      </div>
 
-        {/* 4 Mini KPI Cards Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {/* KPI 1 */}
-          <div className="bg-slate-50/60 border border-slate-100 rounded-xl p-4 flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-[#EEF0FA] text-[#6366F1] flex items-center justify-center mb-3">
-              <Users className="w-4 h-4" />
-            </div>
+      {/* ─── Activity + Coverage ──────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Chart */}
+        <div className={`${cardCls} lg:col-span-2 p-5 sm:p-6`}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-2xl font-extrabold text-slate-900">{totalLeads}</p>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">Scraped Leads in DB</p>
+              <h2 className="text-base font-semibold text-slate-900">Scraping activity</h2>
+              <p className="text-xs text-slate-500 mt-0.5">Leads collected over the last 7 days</p>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#C7D2FE]" /> Targeted
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#4F46E5]" /> Leads scraped
+              </span>
             </div>
           </div>
 
-          {/* KPI 2 */}
-          <div className="bg-slate-50/60 border border-slate-100 rounded-xl p-4 flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center mb-3">
-              <Target className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold text-slate-900">{targetCount}</p>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">Target Accounts</p>
-            </div>
-          </div>
-
-          {/* KPI 3 */}
-          <div className="bg-slate-50/60 border border-slate-100 rounded-xl p-4 flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
-              <PhoneCall className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold text-slate-900">{hasPhoneCount}</p>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">Phone Contacts</p>
-            </div>
-          </div>
-
-          {/* KPI 4 */}
-          <div className="bg-slate-50/60 border border-slate-100 rounded-xl p-4 flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
-              <Globe className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold text-slate-900">{hasWebsiteCount}</p>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">Active Websites</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 7-Day Lead Activity Bar Chart */}
-        <div className="pt-2">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4">
-            REAL 7-DAY SCRAPING ACTIVITY
-          </p>
-
-          <div className="h-56 w-full">
+          <div className="h-64 w-full mt-5">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={activityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} domain={[0, Math.ceil(maxScrapedValue * 1.2)]} />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#94A3B8' }} domain={[0, Math.ceil(maxScrapedValue * 1.2)]} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '12px', borderColor: '#E2E8F0', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                  labelStyle={{ color: '#64748B', fontSize: '11px', fontWeight: 'bold' }}
+                  cursor={{ fill: '#F8FAFC' }}
+                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '10px', borderColor: '#E2E8F0', boxShadow: '0 10px 15px -3px rgba(15,23,42,0.08)', fontSize: '12px' }}
+                  labelStyle={{ color: '#64748B', fontSize: '11px', fontWeight: 600 }}
                 />
-                <Bar dataKey="contacted" name="Targeted" fill="#A5B4FC" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                <Bar dataKey="scraped" name="Leads Scraped" fill="#6366F1" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Bar dataKey="contacted" name="Targeted" fill="#C7D2FE" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="scraped" name="Leads Scraped" fill="#4F46E5" radius={[4, 4, 0, 0]} maxBarSize={32} />
               </BarChart>
             </ResponsiveContainer>
           </div>
+        </div>
 
-          {/* Custom Legend */}
-          <div className="flex items-center justify-center gap-6 pt-3 text-xs text-slate-500 font-medium">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-sm bg-[#A5B4FC]" />
-              <span>Targeted</span>
+        {/* Coverage */}
+        <div className={`${cardCls} p-5 sm:p-6 flex flex-col`}>
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900">Lead quality</h2>
+              <p className="text-xs text-slate-500 mt-0.5">How complete your data is</p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-sm bg-[#6366F1]" />
-              <span>Leads Scraped</span>
+            <span className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </span>
+          </div>
+
+          <div className="mt-6 space-y-5 flex-1">
+            {coverage.map(({ label, percent, count, bar }) => (
+              <div key={label}>
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="font-medium text-slate-700">{label}</span>
+                  <span className="text-slate-500 tabular-nums">
+                    <span className="font-semibold text-slate-900">{count.toLocaleString()}</span> · {percent}%
+                  </span>
+                </div>
+                <div className="mt-2 h-2 rounded-full bg-slate-100 overflow-hidden">
+                  <div className={`h-full rounded-full ${bar} transition-all duration-500`} style={{ width: `${percent}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Link
+            href="/dashboard/target-leads"
+            className="mt-6 inline-flex items-center justify-between h-10 px-3.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-[13px] font-semibold text-slate-700 transition-colors"
+          >
+            Open target leads
+            <ArrowUpRight className="w-4 h-4 text-slate-400" />
+          </Link>
+        </div>
+      </div>
+
+      {/* ─── Mini KPI row ─────────────────────────────────────────────────── */}
+      <div className={`${cardCls} grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-100`}>
+        {[
+          { icon: Users, label: 'Scraped leads in DB', value: totalLeads, tone: 'text-indigo-500' },
+          { icon: Target, label: 'Target accounts', value: targetCount, tone: 'text-violet-500' },
+          { icon: PhoneCall, label: 'Phone contacts', value: hasPhoneCount, tone: 'text-emerald-500' },
+          { icon: Globe, label: 'Active websites', value: hasWebsiteCount, tone: 'text-sky-500' },
+        ].map(({ icon: Icon, label, value, tone }) => (
+          <div key={label} className="p-5 flex items-center gap-3">
+            <Icon className={`w-5 h-5 shrink-0 ${tone}`} />
+            <div className="min-w-0">
+              <p className="text-xl font-bold text-slate-900 tabular-nums leading-none">{value.toLocaleString()}</p>
+              <p className="text-xs text-slate-500 mt-1.5 truncate">{label}</p>
             </div>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );

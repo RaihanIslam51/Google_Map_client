@@ -362,7 +362,15 @@ export default function DiscoveryPage() {
   };
 
   return (
-    <div className="space-y-3.5 sm:space-y-5 container mx-auto  py-1 sm:py-2 text-slate-800">
+    <div className="space-y-5 container mx-auto text-slate-800">
+      {/* Page heading */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Discovery Engine</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Search Google Maps by category and location, then collect verified business leads.
+        </p>
+      </div>
+
       {/* 1. Search Bar */}
       <DiscoverySearchBar
         searchContainerRef={searchContainerRef}
@@ -387,45 +395,49 @@ export default function DiscoveryPage() {
       />
 
       {/* 3. Controls Header */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
+          aria-expanded={showAdvanced}
+          className={`inline-flex items-center justify-center gap-2 h-9 px-3.5 rounded-lg text-[13px] font-medium transition-colors border cursor-pointer ${
             showAdvanced
-              ? 'bg-[#EEF0FA] text-[#6366F1] border-indigo-200/80 shadow-xs'
-              : 'bg-white text-slate-600 border-slate-200/80 hover:bg-slate-50'
+              ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900'
           }`}
         >
-          <SlidersHorizontal className="w-3.5 h-3.5 text-[#6366F1]" />
-          <span>Advanced Filters</span>
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          <span>Advanced filters</span>
           {showAdvanced ? (
-            <ChevronUp className="w-3.5 h-3.5 text-[#6366F1]" />
+            <ChevronUp className="w-3.5 h-3.5" />
           ) : (
             <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
           )}
         </button>
 
         {/* Status Badge & Live Button */}
-        <div className="flex items-center justify-between sm:justify-end gap-2.5">
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 min-w-0">
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-500 min-w-0">
+            <span className="relative flex w-2 h-2 shrink-0">
+              {isScraping && <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />}
+              <span className={`relative inline-flex w-2 h-2 rounded-full ${isScraping ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+            </span>
+            <span className="truncate">
+              {isScraping
+                ? `Scraper active: ${displayCompleted}/${limit} (${displayPercent}%)`
+                : 'Keep this tab open while scraping'}
+            </span>
+          </div>
+
           <button
             type="button"
             onClick={() => setShowLogTerminal(true)}
-            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-xs transition-all cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-medium transition-colors cursor-pointer shrink-0"
             title="Open Live Logs Modal"
           >
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span>Live</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Live logs</span>
           </button>
-
-          <div className="flex items-center gap-2 bg-[#EEF2FF] border border-indigo-100 text-[#4F46E5] text-[11px] sm:text-xs px-3 sm:px-4 py-1.5 rounded-full font-medium shadow-xs truncate">
-            <span className={`w-2 h-2 rounded-full shrink-0 ${isScraping ? 'bg-emerald-500 animate-ping' : 'bg-[#4F46E5]'}`} />
-            <span className="truncate">
-              {isScraping
-                ? `Scraper Active: ${displayCompleted}/${limit} (${displayPercent}%)`
-                : 'Keep tab open while scraping'}
-            </span>
-          </div>
         </div>
       </div>
 

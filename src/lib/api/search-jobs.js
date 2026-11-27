@@ -6,6 +6,17 @@ const LOCAL_ENGINE_URL = 'http://localhost:5000/api';
 
 const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
+const getAuthHeaders = () => {
+  const headers = { 'Content-Type': 'application/json' };
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('ws_token');
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return headers;
+};
+
 export const searchJobsApi = {
   async getAll({ page = 1, limit = 20, status = '', search = '' } = {}) {
     try {
@@ -34,7 +45,7 @@ export const searchJobsApi = {
       if (isLocalhost) {
         try {
           const localRes = await axios.post(`${LOCAL_ENGINE_URL}/search-jobs`, payload, {
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             timeout: 1000 * 60 * 60, // 1 hour timeout for extraction
           });
           if (localRes?.data) return localRes.data;
@@ -47,7 +58,9 @@ export const searchJobsApi = {
       }
 
       // 2. Fallback to default API instance
-      const { data } = await API.post('/search-jobs', payload);
+      const { data } = await API.post('/search-jobs', payload, {
+        timeout: 1000 * 60 * 60,
+      });
       return data;
     } catch (err) {
       if (err.response) throw new Error(err.response.data?.message || 'Failed to create job');
@@ -59,7 +72,10 @@ export const searchJobsApi = {
     try {
       if (isLocalhost) {
         try {
-          const localRes = await axios.get(`${LOCAL_ENGINE_URL}/search-jobs/live-status`, { timeout: 1500 });
+          const localRes = await axios.get(`${LOCAL_ENGINE_URL}/search-jobs/live-status`, {
+            headers: getAuthHeaders(),
+            timeout: 1500,
+          });
           if (localRes?.data?.data && localRes.data.data.status !== 'idle') {
             return localRes.data;
           }
@@ -77,7 +93,10 @@ export const searchJobsApi = {
     try {
       if (isLocalhost) {
         try {
-          const localRes = await axios.get(`${LOCAL_ENGINE_URL}/search-jobs/logs`, { timeout: 1500 });
+          const localRes = await axios.get(`${LOCAL_ENGINE_URL}/search-jobs/logs`, {
+            headers: getAuthHeaders(),
+            timeout: 1500,
+          });
           if (localRes?.data?.logs && Array.isArray(localRes.data.logs) && localRes.data.logs.length > 0) {
             return localRes.data;
           }
@@ -95,7 +114,10 @@ export const searchJobsApi = {
     try {
       if (isLocalhost) {
         try {
-          await axios.post(`${LOCAL_ENGINE_URL}/search-jobs/stop`, {}, { timeout: 2000 });
+          await axios.post(`${LOCAL_ENGINE_URL}/search-jobs/stop`, {}, {
+            headers: getAuthHeaders(),
+            timeout: 2000,
+          });
         } catch (e) {}
       }
       const { data } = await API.post('/search-jobs/stop');

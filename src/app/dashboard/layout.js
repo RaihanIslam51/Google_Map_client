@@ -30,14 +30,14 @@ export default function DashboardLayout({ children }) {
   if (!mounted || loading) {
     return (
       <div 
-        className="flex flex-col items-center justify-center min-h-screen bg-[#F8FAFC]"
+        className="flex flex-col items-center justify-center min-h-screen bg-slate-50"
         suppressHydrationWarning
       >
-        <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 mb-4" suppressHydrationWarning>
-          <Map className="w-8 h-8 text-indigo-600 animate-pulse" />
+        <div className="w-11 h-11 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/25 mb-4" suppressHydrationWarning>
+          <Map className="w-5 h-5 text-white animate-pulse" />
         </div>
-        <p className="text-sm font-medium tracking-wide text-slate-500 animate-pulse" suppressHydrationWarning>
-          Loading dashboard...
+        <p className="text-sm font-medium text-slate-500" suppressHydrationWarning>
+          Loading your workspace…
         </p>
       </div>
     );
@@ -46,19 +46,19 @@ export default function DashboardLayout({ children }) {
   if (!token) return null;
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] text-slate-800" suppressHydrationWarning>
+    <div className="flex min-h-screen bg-slate-50 text-slate-800" suppressHydrationWarning>
       <Sidebar
         mobileOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         collapsed={sidebarCollapsed}
       />
-      <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC]" suppressHydrationWarning>
+      <div className="flex-1 flex flex-col min-w-0 bg-slate-50" suppressHydrationWarning>
         <Header
           onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
           onToggleSidebar={handleToggleSidebar}
           sidebarCollapsed={sidebarCollapsed}
         />
-        <main className="flex-1 p-3 sm:p-5 lg:p-8 overflow-y-auto bg-[#F8FAFC]" suppressHydrationWarning>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-slate-50" suppressHydrationWarning>
           {children}
         </main>
       </div>
